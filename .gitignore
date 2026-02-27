@@ -1,0 +1,15 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# dbt
+dbt-streaming/target/
+dbt-streaming/logs/
+dbt-streaming/dbt_packages/
+
+# IDE
+.vscode/
+
+# OS
+.DS_Store

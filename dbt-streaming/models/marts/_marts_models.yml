@@ -1,0 +1,260 @@
+version: 2
+
+models:
+
+  # ─────────────────────────────────────────────
+  # FACT TABLE
+  # ─────────────────────────────────────────────
+
+  - name: fact_streams
+    description: "Core fact table for streaming performance analytics sourced from int_streams."
+    columns:
+      - name: _surrogate_key
+        description: MD5 surrogate primary key. Uniquely identifies each streaming record across all platforms.
+        tests:
+          - unique
+          - not_null
+
+      - name: date_key
+        description: Reporting date. Foreign key to dim_date.date_key.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_date')
+              field: date_key
+
+      - name: platform_key
+        description: MD5 surrogate key for the streaming platform. Foreign key to dim_platform.platform_key.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_platform')
+              field: platform_key
+
+      - name: song_id
+        description: Cross-platform song identifier (ISRC). Populated for TikTok, Amazon, and Spotify only. NULL for YouTube.
+
+      - name: track_key
+        description: Surrogate track identifier. Foreign key to dim_track.track_key.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_track')
+              field: track_key
+
+      - name: release_id
+        description: Release identifier. Populated for TikTok, Amazon, and Spotify only. NULL for YouTube.
+
+      - name: youtube_video_id
+        description: YouTube video identifier. Populated for YouTube records only; NULL elsewhere.
+
+      - name: youtube_cms
+        description: YouTube CMS identifier. Part of the YouTube grain. Populated for YouTube records only; NULL elsewhere.
+
+      - name: artist_key
+        description: Artist identifier. Foreign key to dim_artist.artist_id.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_artist')
+              field: artist_key
+
+      - name: label_key
+        description: MD5 surrogate key for the label. Foreign key to dim_label.label_key.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_label')
+              field: label_key
+
+      - name: country_code
+        description: ISO 3166-1 alpha-2 country code. Foreign key to dim_geography.country_code. ZZ = Rest of World.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_geography')
+              field: country_code
+
+      - name: streams_track
+        description: "Track-level stream allocation (total streams / n_artists). USE for track, label, and portfolio totals. DO NOT use for artist-level reporting."
+        tests:
+          - not_null
+
+      - name: streams_artist
+        description: "Artist-level stream allocation (total streams / n_artists). USE for artist-level reporting only. DO NOT use for track, label, or portfolio totals."
+        tests:
+          - not_null
+
+      - name: streams_label
+        description: Label-level stream allocation. USE for label-grain reporting only.
+        tests:
+          - not_null
+
+
+  # ─────────────────────────────────────────────
+  # DIMENSION TABLES
+  # ─────────────────────────────────────────────
+
+  - name: dim_track
+    description: Track dimension with descriptive attributes for each unique track.
+    columns:
+      - name: track_key
+        description: Surrogate primary key. Source track_id for TikTok/Amazon/Spotify; MD5(youtube_video_id, youtube_cms) for YouTube.
+        tests:
+          - unique
+          - not_null
+
+      - name: track_title
+        description: Track or video title. May be NULL for YouTube records where the platform did not report a title.
+
+
+  - name: dim_artist
+    description: "Artist dimension. Grain: one record per artist_id. artist_name is NULL — not available in source, placeholder for future enrichment."
+    columns:
+      - name: artist_key
+        description: Primary key. Raw source artist_id. Note — referenced as artist_key in fact_streams; naming should be aligned.
+        tests:
+          - unique
+          - not_null
+
+      - name: artist_name
+        description: Artist display name. Not available in source data. NULL placeholder for future enrichment.
+
+
+  - name: dim_label
+    description: Label dimension with label name attributes.
+    columns:
+      - name: label_key
+        description: MD5 surrogate primary key generated from label_name.
+        tests:
+          - unique
+          - not_null
+
+      - name: label_name
+        description: Label account name. YouTube records with a missing label are represented as 'Unknown Label'.
+        tests:
+          - not_null
+
+
+  - name: dim_platform
+    description: Platform dimension providing a reference list of streaming platforms.
+    columns:
+      - name: platform_key
+        description: MD5 surrogate primary key generated from the platform name.
+        tests:
+          - unique
+          - not_null
+
+      - name: platform
+        description: Streaming platform name.
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['Spotify', 'TikTok', 'YouTube', 'Amazon']
+
+
+  - name: dim_geography
+    description: "Geography dimension from the geography_data seed. Covers all ISO 3166-1 alpha-2 countries plus ZZ (Rest of World) and XX (Unknown)."
+    columns:
+      - name: country_code
+        description: ISO 3166-1 alpha-2 two-letter code. Primary key. ZZ = Rest of World, XX = Unknown.
+        tests:
+          - unique
+          - not_null
+
+      - name: country_name
+        description: Standard English country name per ISO 3166-1.
+        tests:
+          - not_null
+
+      - name: region
+        description: UN M.49 continental region (Africa, Americas, Asia, Europe, Oceania). Empty for ZZ/XX.
+
+      - name: sub_region
+        description: UN M.49 sub-region (e.g. Southern Asia, Northern Europe). Empty for ZZ/XX.
+
+
+  - name: dim_date
+    description: "Date dimension from a dbt_utils date spine (2020-01-01 to current date)."
+    columns:
+      - name: date_key
+        description: Calendar date (YYYY-MM-DD). Primary key. Foreign key source for fact_streams.date_key.
+        tests:
+          - unique
+          - not_null
+
+      - name: day_of_month
+        description: Day of the month.
+        tests:
+          - not_null
+
+      - name: day_of_year
+        description: Day of the year.
+        tests:
+          - not_null
+
+      - name: day_of_week
+        description: Day of the week (0 = Sunday, 6 = Saturday) per PostgreSQL DOW convention.
+        tests:
+          - not_null
+
+      - name: day_name
+        description: Full day name (e.g. 'Monday'). Note possible trailing spaces from TO_CHAR.
+        tests:
+          - not_null
+
+      - name: week_of_year
+        description: ISO week number.
+        tests:
+          - not_null
+
+      - name: week_start_date
+        description: Date of the Monday starting the ISO week for this date.
+        tests:
+          - not_null
+
+      - name: month_number
+        description: Month number.
+        tests:
+          - not_null
+
+      - name: month_name
+        description: Full month name (e.g. 'January'). Note possible trailing spaces from TO_CHAR.
+        tests:
+          - not_null
+
+      - name: month_name_short
+        description: Abbreviated month name (e.g. 'Jan').
+        tests:
+          - not_null
+
+      - name: month_start_date
+        description: First day of the month for this date.
+        tests:
+          - not_null
+
+      - name: quarter_number
+        description: Calendar quarter.
+        tests:
+          - not_null
+
+      - name: quarter_name
+        description: Quarter label (e.g. 'Q1', 'Q2').
+        tests:
+          - not_null
+
+      - name: quarter_start_date
+        description: First day of the quarter for this date.
+        tests:
+          - not_null
+
+      - name: year_number
+        description: Four-digit calendar year.
+        tests:
+          - not_null
+
+      - name: year_start_date
+        description: First day of the year (January 1st) for this date.
+        tests:
+          - not_null

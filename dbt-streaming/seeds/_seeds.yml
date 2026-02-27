@@ -1,0 +1,77 @@
+version: 2
+
+seeds:
+  - name: geography_data
+    description: Geographical reference data with country codes, names, and regions.
+    columns:
+      - name: country_code
+        description: Two-letter country code.
+        tests:
+          - unique
+          - not_null
+
+      - name: country_name
+        description: Country name corresponding to the country code.
+        tests:
+          - not_null
+
+      - name: region
+        description: Region the country belongs to (e.g. Americas, Europe, Asia). Empty for ZZ/XX.
+
+      - name: sub_region
+        description: Sub-region the country belongs to (e.g. Northern America, Southern Europe, Eastern Asia). Empty for ZZ/XX.
+
+  - name: sample_data
+    description: Raw streaming data seeded from source CSV.
+    columns:
+      - name: platform
+        description: "Streaming platform. One of: Spotify, TikTok, YouTube, Amazon."
+
+      - name: youtube_cms
+        description: "YouTube Content Management System identifier. Populated for YouTube rows only."
+
+      - name: youtube_video_id
+        description: "YouTube video identifier. Populated for YouTube rows only."
+
+      - name: youtube_video_title
+        description: "YouTube video title. Populated for YouTube rows only."
+
+      - name: date
+        description: "Reporting date in YYYY-MM-DD format."
+
+      - name: song_id
+        description: "Unique identifier for each song across all platforms."
+
+      - name: track_title
+        description: "Title of the track."
+
+      - name: track_id
+        description: "Unique identifier for each track within a song."
+
+      - name: release_id
+        description: "Unique identifier for each release."
+
+      - name: artist_id
+        description: "Unique identifier for each artist."
+
+      - name: label_account_name
+        description: "Name of the label account associated with the track."
+
+      - name: streams_track
+        description: "Pre-allocated stream count for track-level aggregations. Defaulted to 0 if null."
+
+      - name: streams_artist
+        description: "Pre-allocated stream count for artist-level aggregations. Defaulted to 0 if null."
+
+      - name: streams_label
+        description: "Pre-allocated stream count for label-level aggregations. Defaulted to 0 if null."
+
+      - name: country_code
+        description: "Two-letter country code."
+
+      - name: country
+        description: "Full country name."
+
+      - name: region
+        description: "Geographical region."
+        

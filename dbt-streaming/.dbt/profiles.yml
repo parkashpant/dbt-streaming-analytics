@@ -1,0 +1,12 @@
+dbt_streaming:
+  outputs:
+    dev:
+      dbname: streaming
+      host: localhost
+      password: postgres
+      port: 5434
+      schema: public
+      threads: 5
+      type: postgres
+      user: postgres
+  target: dev

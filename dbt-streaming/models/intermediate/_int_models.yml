@@ -1,0 +1,87 @@
+version: 2
+
+models:
+  - name: int_streams
+    description: >
+      Unified streaming dataset combining TikTok, Amazon, Spotify, and YouTube into a single
+      consistent schema. This is the sole intermediate model and the single source of truth
+      for all downstream dimension and fact tables.
+    columns:
+      - name: _surrogate_key
+        description: Unique identifier for each record.
+        tests:
+          - unique
+          - not_null
+
+      - name: platform_key
+        description: Unique identifier for the streaming platform.
+        tests:
+          - not_null
+
+      - name: platform
+        description: "Streaming platform name. One of: Spotify, TikTok, YouTube, Amazon."
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['Spotify', 'TikTok', 'YouTube', 'Amazon']
+
+      - name: date_key
+        description: Represents the reporting date of the stream record.
+        tests:
+          - not_null
+
+      - name: song_id
+        description: Unique identifier for each song across all platforms.
+
+      - name: track_key
+        description: Unique identifier for each track.
+        tests:
+          - not_null
+
+      - name: track_title
+        description: Title of the track.
+
+      - name: release_id
+        description: Unique identifier for each release.
+
+      - name: youtube_video_id
+        description: YouTube video identifier. Populated for YouTube records only; NULL for all other platforms.
+
+      - name: youtube_cms
+        description: YouTube Content Management System identifier. Populated for YouTube records only; NULL for all other platforms.
+
+      - name: artist_key
+        description: Unique identifier for each artist.
+        tests:
+          - not_null
+
+      - name: label_key
+        description: Unique identifier for each label.
+        tests:
+          - not_null
+
+      - name: label_name
+        description: Name of the label associated with the track.
+        tests:
+          - not_null
+
+      - name: country_code
+        description: Two-letter country code representing the country of the stream.
+        tests:
+          - not_null
+
+      - name: streams_track
+        description: Pre-allocated stream count for track-level reporting.
+        tests:
+          - not_null
+
+      - name: streams_artist
+        description: Pre-allocated stream count for artist-level reporting.
+        tests:
+          - not_null
+
+      - name: streams_label
+        description: Pre-allocated stream count for label-level reporting. 
+        tests:
+          - not_null

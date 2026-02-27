@@ -1,0 +1,70 @@
+version: 2
+
+models:
+  - name: stg_streams
+    description: Streaming data from multiple platforms - Spotify, TikTok, YouTube, and Amazon.
+    columns:
+      - name: platform
+        description: "Streaming platform. One of: Spotify, TikTok, YouTube, Amazon."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Spotify', 'TikTok', 'YouTube', 'Amazon']
+
+      - name: youtube_cms
+        description: "YouTube Content Management System identifier. Populated for YouTube rows only."
+
+      - name: youtube_video_id
+        description: "YouTube video identifier. Populated for YouTube rows only."
+
+      - name: youtube_video_title
+        description: "YouTube video title. Populated for YouTube rows only."
+
+      - name: date
+        description: "Reporting date in YYYY-MM-DD format."
+        tests:
+          - not_null
+
+      - name: song_id
+        description: "Unique identifier for each song across all platforms."
+
+      - name: track_title
+        description: "Title of the track."
+
+      - name: track_id
+        description: "Unique identifier for each track within a song."
+
+      - name: release_id
+        description: "Unique identifier for each release."
+
+      - name: artist_id
+        description: "Unique identifier for each artist."
+        tests:
+          - not_null
+
+      - name: label_account_name
+        description: "Name of the label account associated with the track."
+
+      - name: streams_track
+        description: "Pre-allocated stream count for track-level aggregations. Defaulted to 0 if null."
+        tests:
+          - not_null
+
+      - name: streams_artist
+        description: "Pre-allocated stream count for artist-level aggregations. Defaulted to 0 if null."
+        tests:
+          - not_null
+
+      - name: streams_label
+        description: "Pre-allocated stream count for label-level aggregations. Defaulted to 0 if null."
+        tests:
+          - not_null
+
+      - name: country_code
+        description: "Two-letter country code."
+
+      - name: country
+        description: "Full country name."
+
+      - name: region
+        description: "Geographical region."
