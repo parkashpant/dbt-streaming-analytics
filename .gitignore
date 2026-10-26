@@ -13,3 +13,6 @@ dbt-streaming/dbt_packages/
 
 # OS
 .DS_Store
+# DuckDB
+*.duckdb
+*.duckdb.wal

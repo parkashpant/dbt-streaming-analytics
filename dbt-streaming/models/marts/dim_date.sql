@@ -24,7 +24,7 @@ final AS (
         EXTRACT(DAY FROM date_day)::INT AS day_of_month,
         EXTRACT(DOY FROM date_day)::INT AS day_of_year,
         EXTRACT(DOW FROM date_day)::INT AS day_of_week,
-        TO_CHAR(date_day, 'Day') AS day_name,
+        STRFTIME(date_day, '%A') AS day_name,
 
         -- week
         EXTRACT(WEEK FROM date_day)::INT AS week_of_year,
@@ -32,8 +32,8 @@ final AS (
 
         -- month
         EXTRACT(MONTH FROM date_day)::INT AS month_number,
-        TO_CHAR(date_day, 'Month') AS month_name,
-        TO_CHAR(date_day, 'Mon') AS month_name_short,
+        STRFTIME(date_day, '%B') AS month_name,
+        STRFTIME(date_day, '%b') AS month_name_short,
         DATE_TRUNC('month', date_day)::DATE AS month_start_date,
 
         -- quarter

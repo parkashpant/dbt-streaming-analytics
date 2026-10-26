@@ -24,3 +24,5 @@ models:
       +materialized: table
     example_queries:
       +materialized: table
+flags:
+  require_generic_test_arguments_property: true

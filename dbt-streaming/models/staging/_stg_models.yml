@@ -9,7 +9,8 @@ models:
         tests:
           - not_null
           - accepted_values:
-              values: ['Spotify', 'TikTok', 'YouTube', 'Amazon']
+              arguments:
+                values: ['Spotify', 'TikTok', 'YouTube', 'Amazon']
 
       - name: youtube_cms
         description: "YouTube Content Management System identifier. Populated for YouTube rows only."
