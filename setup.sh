@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 START_TIME=$(date +%s)
 START_TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
@@ -6,38 +7,21 @@ START_TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
 echo -e "Starting Streaming Analytics dbt setup...\n"
 echo -e "Start time: $START_TIMESTAMP\n"
 
-# Create and activate virtual environment
-python3.11 -m venv venv
-source venv/bin/activate
-
-# Verify activation
-EXPECTED_VENV="$(pwd)/venv"
-if [ "$VIRTUAL_ENV" != "$EXPECTED_VENV" ]; then
-    echo -e "Error: Virtual environment is not activated for this project\n"
-    echo -e "Expected: $EXPECTED_VENV\n"
-    echo -e "Current:  ${VIRTUAL_ENV:-"none"}\n"
+# Ensure uv is installed
+if ! command -v uv > /dev/null 2>&1; then
+    echo -e "Error: uv is not installed. Install it with:\n"
+    echo -e "  curl -LsSf https://astral.sh/uv/install.sh | sh\n"
     exit 1
 fi
 
-echo -e "Virtual environment activated: $VIRTUAL_ENV\n"
+# Install dbt v2 as a standalone CLI (DuckDB adapter is built in)
+export PATH="$HOME/.local/bin:$PATH"
+if ! dbt --version 2>/dev/null | grep -q "dbt 2\."; then
+    echo -e "Installing dbt v2...\n"
+    uv tool install --force dbt
+fi
 
-# Install dependencies
-pip3.11 install -r requirements.txt
-
-# Start PostgreSQL via Docker
-docker-compose up -d
-
-echo -e "Waiting for database...\n"
-sleep 8
-
-# Wait until PostgreSQL is ready
-echo -e "Checking database connection...\n"
-until docker exec streaming_postgres pg_isready -U postgres > /dev/null 2>&1; do
-    echo -e "Still waiting for PostgreSQL...\n"
-    sleep 2
-done
-
-echo -e "Database is ready!\n"
+echo -e "Using $(dbt --version | head -1)\n"
 
 # Navigate to dbt project
 cd dbt-streaming
@@ -45,7 +29,7 @@ cd dbt-streaming
 echo -e "Installing dbt packages...\n"
 dbt deps --profiles-dir .dbt --target dev
 
-echo -e "Loading seed data into PostgreSQL...\n"
+echo -e "Loading seed data into DuckDB (warehouse.duckdb)...\n"
 dbt seed --profiles-dir .dbt --target dev
 
 echo -e "Building dbt models...\n"

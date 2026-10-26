@@ -20,17 +20,17 @@ models:
         tests:
           - not_null
           - relationships:
-              to: ref('dim_date')
-              field: date_key
-
+              arguments:
+                to: ref('dim_date')
+                field: date_key
       - name: platform_key
         description: MD5 surrogate key for the streaming platform. Foreign key to dim_platform.platform_key.
         tests:
           - not_null
           - relationships:
-              to: ref('dim_platform')
-              field: platform_key
-
+              arguments:
+                to: ref('dim_platform')
+                field: platform_key
       - name: song_id
         description: Cross-platform song identifier (ISRC). Populated for TikTok, Amazon, and Spotify only. NULL for YouTube.
 
@@ -39,9 +39,9 @@ models:
         tests:
           - not_null
           - relationships:
-              to: ref('dim_track')
-              field: track_key
-
+              arguments:
+                to: ref('dim_track')
+                field: track_key
       - name: release_id
         description: Release identifier. Populated for TikTok, Amazon, and Spotify only. NULL for YouTube.
 
@@ -56,25 +56,25 @@ models:
         tests:
           - not_null
           - relationships:
-              to: ref('dim_artist')
-              field: artist_key
-
+              arguments:
+                to: ref('dim_artist')
+                field: artist_key
       - name: label_key
         description: MD5 surrogate key for the label. Foreign key to dim_label.label_key.
         tests:
           - not_null
           - relationships:
-              to: ref('dim_label')
-              field: label_key
-
+              arguments:
+                to: ref('dim_label')
+                field: label_key
       - name: country_code
         description: ISO 3166-1 alpha-2 country code. Foreign key to dim_geography.country_code. ZZ = Rest of World.
         tests:
           - not_null
           - relationships:
-              to: ref('dim_geography')
-              field: country_code
-
+              arguments:
+                to: ref('dim_geography')
+                field: country_code
       - name: streams_track
         description: "Track-level stream allocation (total streams / n_artists). USE for track, label, and portfolio totals. DO NOT use for artist-level reporting."
         tests:
@@ -195,12 +195,12 @@ models:
           - not_null
 
       - name: day_of_week
-        description: Day of the week (0 = Sunday, 6 = Saturday) per PostgreSQL DOW convention.
+        description: Day of the week (0 = Sunday, 6 = Saturday).
         tests:
           - not_null
 
       - name: day_name
-        description: Full day name (e.g. 'Monday'). Note possible trailing spaces from TO_CHAR.
+        description: Full day name (e.g. 'Monday').
         tests:
           - not_null
 
@@ -220,7 +220,7 @@ models:
           - not_null
 
       - name: month_name
-        description: Full month name (e.g. 'January'). Note possible trailing spaces from TO_CHAR.
+        description: Full month name (e.g. 'January').
         tests:
           - not_null
 
